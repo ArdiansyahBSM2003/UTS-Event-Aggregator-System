@@ -1,0 +1,36 @@
+services:
+  aggregator:
+    build: .
+    ports:
+      - "8080:8080"
+    networks:
+      - event-network
+    volumes:
+      - dedup-data:/app/data
+    environment:
+      - LOG_LEVEL=INFO
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+
+  publisher:
+    build: .
+    command: python -m src.publisher
+    depends_on:
+      aggregator:
+        condition: service_healthy
+    networks:
+      - event-network
+    environment:
+      - AGGREGATOR_URL=http://aggregator:8080
+      - NUM_EVENTS=5000
+      - DUPLICATE_RATE=0.2
+
+networks:
+  event-network:
+    driver: bridge
+
+volumes:
+  dedup-data:

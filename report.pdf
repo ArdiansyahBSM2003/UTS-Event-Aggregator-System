@@ -1,0 +1,44 @@
+Nama	: Ardiansyah Bin Sangkala
+NIM	: 11211016
+MK	: Sistem Terdistribusi
+Kelas	: B
+
+Jawaban:
+T1(Bab 1) : 
+Sistem terdistribusi dicirikan oleh banyak sumber daya (resource sharing), transparansi distribusi (distribution transparency), keterbukaan (openness), skalabilitas (scalability), dan toleransi kesalahan (fault tolerance) (van Steen & Tanenbaum, 2023, Bab 1.2). Dalam desain pub-sub log aggregator, trade-off umum terjadi antara konsistensi, latensi, dan throughput. Misalnya, untuk mencapai pengiriman event berpotensi rendah, sistem mungkin mengadopsi konsistensi eventual (eventual consistency) (van Steen & Tanenbaum, 2023, Bab 7.2.2), dengan mengorbankan konsistensi kuat. Skalabilitas dicapai melalui replikasi data dan partisi, tetapi berpotensi menimbulkan duplikasi atau event tidak berurutan (van Steen & Tanenbaum, 2023, Bab 1.2.6). Toleransi kesalahan memerlukan mekanisme retry dan idempotensi, yang dapat meningkatkan kompleksitas dan latensi.
+
+T2(Bab 2):
+Arsitektur client-server bersifat terpusat dan menggunakan model request-reply, cocok untuk sistem dengan beban terprediksi dan konkurensi rendah (van Steen & Tanenbaum, 2023, Bab 2.3.1). Sebaliknya, arsitektur publish-subscribe memisahkan produsen (publisher) dan konsumen (subscriber) melalui event bus, ideal untuk log streaming real-time dengan banyak subscriber (van Steen & Tanenbaum, 2023, Bab 2.1.3). Pub-Sub dipilih ketika:
+
+Diperlukan skalabilitas horizontal untuk menangani ledakan event.
+Pengiriman berlatensi rendah lebih kritis daripada pengurutan global yang kuat. 
+Sistem perlu mendukung manajemen langganan dinamis tanpa modifikasi publisher.
+
+T3(Bab 3):
+At-least-once: 
+Pesan dijamin dikirim minimal sekali melalui retransmisi saat gagal, tetapi berisiko duplikasi. 
+Exactly-once: 
+Pengiriman exactly-once sejati mustahil secara teoritis dalam sistem terdistribusi yang rentan kegagalan. Implementasi praktis mensimulasikannya menggunakan at-least-once delivery + pemrosesan idempoten + deduplikasi persisten.
+
+Konsumen idempoten (idempotent consumer) krusial karena memastikan pemrosesan pesan yang sama berulang kali (akibat retry) tidak mengubah status sistem secara tidak konsisten. Tanpa idempotensi, retry dapat menyebabkan pemrosesan ganda dan melanggar model konsistensi (van Steen & Tanenbaum, 2023, Bab 7.3).
+
+T4(Bab 4):
+Menggunakan struktur hierarkis untuk topic, misal: service.env.log_type (contoh: payment.prod.error). Untuk event_id, gabungkan timestamp (ms sejak epoch), service_id, dan sequence_number (misal: 1651234567890-payment-001). Skema ini memastikan uniqueness dan collision resistance. Dengan event_id yang unik, deduplikasi dapat dilakukan efisien dengan menyimpan event_id yang telah diproses dalam durable store (van Steen & Tanenbaum, 2023, Bab 6.1).
+
+T5(Bab 5):
+Total ordering tidak diperlukan ketika urutan pesan hanya penting dalam konteks produsen yang sama (producer-order). Untuk log aggregation, pendekatan praktis adalah menggunakan event timestamp + monotonic counter per produsen. Namun, pendekatan ini rentan terhadap clock skew dan tidak menjamin urutan global. Batasannya termasuk ketidakmampuan menangani out-of-order delivery antar produsen (van Steen & Tanenbaum, 2023, Bab 5.2).
+
+T6(Bab 6):
+Retry dengan exponential backoff untuk menghindari overload. 
+Durable dedup store (misal, DB dengan event_id sebagai key) untuk mencegah duplikasi. 
+Sequence number dan checkpointing untuk menangani out-of-order dan crash recovery (van Steen & Tanenbaum, 2023, Bab 8.1).
+T7(Bab 7):
+Eventual consistency memastikan bahwa jika tidak ada update baru, semua replika akan konvergen ke state yang sama (van Steen & Tanenbaum, 2023, Bab 7.2.2). Dalam log aggregator, idempotensi memungkinkan pemrosesan ulang log duplikat tanpa mengubah hasil akhir. Deduplikasi mencegah entri log duplikat disimpan. Kombinasi ini memastikan sistem tetap konsisten meskipun ada duplikasi atau pesan yang tertunda.
+
+T8(Bab 1-7):
+Throughput: 
+Dipengaruhi oleh skalabilitas arsitektur Pub-Sub (van Steen & Tanenbaum, 2023, Bab 1.2.6).
+Latency: 
+Ditentukan oleh communication latency dan processing time (van Steen & Tanenbaum, 2023, Bab 4.1).
+Duplicate rate: 
+Bergantung pada delivery semantics dan efektivitas mekanisme deduplikasi (van Steen & Tanenbaum, 2023, Bab 3). Desain yang memprioritaskan throughput (misal, at-least-once) dapat meningkatkan duplicate rate, sementara exactly-once dapat menurunkan throughput dan meningkatkan latency.
