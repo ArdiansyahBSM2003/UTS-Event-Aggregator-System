@@ -42,7 +42,7 @@ Pastikan sudah terinstall:
 - Python 3.11 atau lebih baru
 - Docker Desktop (untuk menjalankan container)
 
-### Opsi 1: Jalankan Langsung (Development)
+### Langkah 1: Jalankan Langsung (Development)
 
 1. Install dependencies:
 ```bash
@@ -56,7 +56,7 @@ python -m uvicorn src.main:app --reload --port 8080
 
 3. Buka browser ke http://localhost:8080/docs untuk melihat dokumentasi API
 
-### Opsi 2: Jalankan dengan Docker (Recommended)
+### Langkah 2: Jalankan dengan Docker (Recommended)
 
 1. Build Docker image:
 ```bash
@@ -70,7 +70,7 @@ docker run -p 8080:8080 uts-aggregator
 
 3. Akses API di http://localhost:8080/docs
 
-### Opsi 3: Docker Compose
+### Langkah 3: Docker Compose
 
 Untuk menjalankan aggregator beserta publisher simulator sekaligus:
 
