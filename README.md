@@ -3,7 +3,6 @@
 > Tugas Ujian Tengah Semester - Sistem Paralel dan Terdistribusi
 
 **Dibuat oleh**: Ardiansyah Bin Sangkala
-**NIM**: 11211016  
 **Mata kuliah**: Sistem Paralel dan Terdistribusi
 **Kelas**: B  
 
